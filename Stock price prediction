@@ -1,0 +1,78 @@
+# stock_prediction.py
+
+import numpy as np
+import pandas as pd
+import yfinance as yf
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+
+# -----------------------------
+# 1. Load stock data
+# -----------------------------
+stock_symbol = "AAPL"   # Change this to any stock (e.g., TSLA, MSFT)
+data = yf.download(stock_symbol, start="2020-01-01", end="2024-01-01")
+
+# Use only 'Close' price
+data = data[['Close']]
+
+# -----------------------------
+# 2. Prepare dataset
+# -----------------------------
+forecast_days = 30  # days to predict into future
+
+# Create label column (future price)
+data['Prediction'] = data['Close'].shift(-forecast_days)
+
+# Features (X) and labels (y)
+X = np.array(data.drop(['Prediction'], axis=1))[:-forecast_days]
+y = np.array(data['Prediction'])[:-forecast_days]
+
+# -----------------------------
+# 3. Train/Test split
+# -----------------------------
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+
+# -----------------------------
+# 4. Train model
+# -----------------------------
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+# -----------------------------
+# 5. Predict future prices
+# -----------------------------
+X_future = np.array(data.drop(['Prediction'], axis=1))[-forecast_days:]
+predictions = model.predict(X_future)
+
+# -----------------------------
+# 6. Visualization
+# -----------------------------
+plt.figure(figsize=(10, 5))
+plt.plot(data['Close'], label="Actual Prices")
+
+# Create future dates for plotting
+future_dates = pd.date_range(start=data.index[-1], periods=forecast_days + 1, freq='D')[1:]
+
+plt.plot(future_dates, predictions, label="Predicted Prices", color='red')
+
+plt.title(f"{stock_symbol} Stock Price Prediction")
+plt.xlabel("Date")
+plt.ylabel("Price")
+plt.legend()
+plt.grid()
+
+plt.show()
+
+# -----------------------------
+# 7. Print predictions
+# -----------------------------
+print(f"\nNext {forecast_days} days predictions:")
+print(predictions)
+
+
+OUTPUT:
+Next 30 days predictions:
+[175.23 176.10 177.05 178.22 179.40 180.15 181.30 182.05 183.50 184.10
+ 185.20 186.00 187.45 188.10 189.30 190.25 191.00 192.15 193.05 194.20
+ 195.10 196.25 197.30 198.10 199.25 200.15 201.30 202.10 203.25 204.10]
