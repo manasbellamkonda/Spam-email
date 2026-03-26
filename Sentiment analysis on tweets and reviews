@@ -1,0 +1,86 @@
+# sentiment_analysis_app.py
+
+import pandas as pd
+import re
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.naive_bayes import MultinomialNB
+
+# -------------------------------
+# Step 1: Sample Dataset
+# -------------------------------
+data = {
+    "text": [
+        "I love this product",
+        "This is amazing",
+        "Very bad experience",
+        "I hate this",
+        "Best purchase ever",
+        "Worst product",
+        "I am very happy",
+        "I am disappointed"
+    ],
+    "label": [
+        "positive", "positive", "negative", "negative",
+        "positive", "negative", "positive", "negative"
+    ]
+}
+
+df = pd.DataFrame(data)
+
+# -------------------------------
+# Step 2: Text Cleaning Function
+# -------------------------------
+def clean_text(text):
+    text = text.lower()                     # lowercase
+    text = re.sub(r'[^a-zA-Z\s]', '', text) # remove symbols
+    return text
+
+df['clean_text'] = df['text'].apply(clean_text)
+
+# Convert labels to numbers
+df['label_num'] = df['label'].map({'negative': 0, 'positive': 1})
+
+# -------------------------------
+# Step 3: Train-Test Split
+# -------------------------------
+X_train, X_test, y_train, y_test = train_test_split(
+    df['clean_text'], df['label_num'], test_size=0.2, random_state=42
+)
+
+# -------------------------------
+# Step 4: TF-IDF Vectorization
+# -------------------------------
+vectorizer = TfidfVectorizer()
+X_train_tfidf = vectorizer.fit_transform(X_train)
+
+# -------------------------------
+# Step 5: Train Model
+# -------------------------------
+model = MultinomialNB()
+model.fit(X_train_tfidf, y_train)
+
+# -------------------------------
+# Step 6: Predict New Input
+# -------------------------------
+print("Enter a tweet/review:")
+user_input = input()
+
+clean_input = clean_text(user_input)
+input_tfidf = vectorizer.transform([clean_input])
+
+prediction = model.predict(input_tfidf)
+
+# -------------------------------
+# Step 7: Output Result
+# -------------------------------
+if prediction[0] == 1:
+    print("Sentiment: Positive 😊")
+else:
+    print("Sentiment: Negative 😞")
+
+
+OUTPUT:
+Enter a tweet/review:
+I love this product
+Sentiment: Positive 😊
