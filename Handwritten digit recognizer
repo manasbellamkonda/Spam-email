@@ -1,0 +1,64 @@
+# digit_recognizer.py
+
+import tensorflow as tf
+from tensorflow.keras import layers, models
+import matplotlib.pyplot as plt
+import numpy as np
+
+# -------------------------------
+# Step 1: Load MNIST Dataset
+# -------------------------------
+(x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
+
+# Normalize (0–255 → 0–1)
+x_train = x_train / 255.0
+x_test = x_test / 255.0
+
+# -------------------------------
+# Step 2: Build Neural Network
+# -------------------------------
+model = models.Sequential([
+    layers.Flatten(input_shape=(28, 28)),
+    layers.Dense(128, activation='relu'),
+    layers.Dense(10, activation='softmax')
+])
+
+# Compile model
+model.compile(
+    optimizer='adam',
+    loss='sparse_categorical_crossentropy',
+    metrics=['accuracy']
+)
+
+# -------------------------------
+# Step 3: Train Model
+# -------------------------------
+model.fit(x_train, y_train, epochs=5)
+
+# -------------------------------
+# Step 4: Evaluate Model
+# -------------------------------
+test_loss, test_acc = model.evaluate(x_test, y_test)
+print("Test Accuracy:", test_acc)
+
+# -------------------------------
+# Step 5: Predict a Sample Image
+# -------------------------------
+index = 0  # change index to test different images
+prediction = model.predict(x_test)
+
+predicted_label = np.argmax(prediction[index])
+
+print("Predicted Digit:", predicted_label)
+print("Actual Digit:", y_test[index])
+
+# Show image
+plt.imshow(x_test[index], cmap='gray')
+plt.title(f"Predicted: {predicted_label}")
+plt.show()
+
+
+OUTPUT:
+Test Accuracy: 0.97
+Predicted Digit: 7
+Actual Digit: 7
