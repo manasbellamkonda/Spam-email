@@ -1,0 +1,91 @@
+# rps_ai_game.py
+
+import random
+
+# Store user history
+user_history = []
+
+# Function to get computer move (AI logic)
+def get_computer_move():
+    if not user_history:
+        return random.choice(["rock", "paper", "scissors"])
+    
+    # Predict user's most frequent move
+    most_common = max(set(user_history), key=user_history.count)
+
+    # Counter move logic
+    if most_common == "rock":
+        return "paper"
+    elif most_common == "paper":
+        return "scissors"
+    else:
+        return "rock"
+
+# Function to decide winner
+def decide_winner(user, computer):
+    if user == computer:
+        return "draw"
+    elif (user == "rock" and computer == "scissors") or \
+         (user == "paper" and computer == "rock") or \
+         (user == "scissors" and computer == "paper"):
+        return "user"
+    else:
+        return "computer"
+
+# Scores
+user_score = 0
+computer_score = 0
+
+print("🤖 Rock, Paper, Scissors Game")
+print("Type rock / paper / scissors or 'exit' to quit\n")
+
+while True:
+    user_move = input("You: ").lower()
+
+    if user_move == "exit":
+        print("Game Over!")
+        break
+
+    if user_move not in ["rock", "paper", "scissors"]:
+        print("Invalid input! Try again.")
+        continue
+
+    # Save user move
+    user_history.append(user_move)
+
+    computer_move = get_computer_move()
+
+    print("Computer:", computer_move)
+
+    result = decide_winner(user_move, computer_move)
+
+    if result == "draw":
+        print("It's a draw!")
+    elif result == "user":
+        print("You win! 🎉")
+        user_score += 1
+    else:
+        print("Computer wins! 🤖")
+        computer_score += 1
+
+    # Display score
+    print(f"Score -> You: {user_score} | Computer: {computer_score}\n")
+
+
+OUTPUT :
+🤖 Rock, Paper, Scissors Game
+Type rock / paper / scissors or 'exit' to quit
+
+You: rock
+Computer: paper
+Computer wins! 🤖
+Score -> You: 0 | Computer: 1
+
+You: scissors
+Computer: rock
+Computer wins! 🤖
+Score -> You: 0 | Computer: 2
+
+You: exit
+Game Over!
+
